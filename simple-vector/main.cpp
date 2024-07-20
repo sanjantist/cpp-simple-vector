@@ -1,34 +1,25 @@
-#include "simple_vector.h"
-
 #include <cassert>
 #include <iostream>
 #include <numeric>
-#include <string>
+
+#include "simple_vector.h"
 
 using namespace std;
 
 class X {
-public:
-    X()
-        : X(5) {
-    }
-    X(size_t num)
-        : x_(num) {
-    }
-    X(const X& other) = delete;
-    X& operator=(const X& other) = delete;
-    X(X&& other) {
-        x_ = exchange(other.x_, 0);
-    }
-    X& operator=(X&& other) {
+   public:
+    X() : X(5) {}
+    X(size_t num) : x_(num) {}
+    X(const X &other) = delete;
+    X &operator=(const X &other) = delete;
+    X(X &&other) { x_ = exchange(other.x_, 0); }
+    X &operator=(X &&other) {
         x_ = exchange(other.x_, 0);
         return *this;
     }
-    size_t GetX() const {
-        return x_;
-    }
+    size_t GetX() const { return x_; }
 
-private:
+   private:
     size_t x_;
 };
 
@@ -62,7 +53,7 @@ void TestNamedMoveConstructor() {
     SimpleVector<int> vector_to_move(GenerateVector(size));
     assert(vector_to_move.GetSize() == size);
 
-    SimpleVector<int> moved_vector(move(vector_to_move));
+    SimpleVector<int> moved_vector(std::move(vector_to_move));
     assert(moved_vector.GetSize() == size);
     assert(vector_to_move.GetSize() == 0);
     cout << "Done!"s << endl << endl;
@@ -74,7 +65,7 @@ void TestNamedMoveOperator() {
     SimpleVector<int> vector_to_move(GenerateVector(size));
     assert(vector_to_move.GetSize() == size);
 
-    SimpleVector<int> moved_vector = move(vector_to_move);
+    SimpleVector<int> moved_vector = std::move(vector_to_move);
     assert(moved_vector.GetSize() == size);
     assert(vector_to_move.GetSize() == 0);
     cout << "Done!"s << endl << endl;
@@ -88,7 +79,7 @@ void TestNoncopiableMoveConstructor() {
         vector_to_move.PushBack(X(i));
     }
 
-    SimpleVector<X> moved_vector = move(vector_to_move);
+    SimpleVector<X> moved_vector = std::move(vector_to_move);
     assert(moved_vector.GetSize() == size);
     assert(vector_to_move.GetSize() == 0);
 
