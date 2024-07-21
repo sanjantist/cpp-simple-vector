@@ -36,10 +36,7 @@ class SimpleVector {
         std::uninitialized_copy(other.begin(), other.end(), begin());
     }
 
-    explicit SimpleVector(size_t size) {
-        SimpleVector new_vec(size, Type());
-        swap(new_vec);
-    }
+    explicit SimpleVector(size_t size) : SimpleVector(size, Type{}) {}
 
     SimpleVector(size_t size, const Type& value)
         : size_(size), capacity_(size) {
@@ -48,13 +45,9 @@ class SimpleVector {
         items_.swap(new_items);
     }
 
-    SimpleVector(std::initializer_list<Type> init) {
-        size_t size = init.size();
-        ArrayPtr<Type> new_items(size);
-        std::copy(init.begin(), init.end(), new_items.Get());
-        items_.swap(new_items);
-        size_ = size;
-        capacity_ = size;
+    SimpleVector(std::initializer_list<Type> init)
+        : items_(init.size()), size_(init.size()), capacity_(init.size()) {
+        std::copy(init.begin(), init.end(), items_.Get());
     }
 
     SimpleVector(ReserveProxyObj obj) { capacity_ = obj.capacity_to_reserve_; }
@@ -143,13 +136,14 @@ class SimpleVector {
 
     Iterator Insert(ConstIterator pos, const Type& value) {
         size_t index = std::distance(cbegin(), pos);
+        Type temp_value = value;
 
         if (size_ == capacity_) {
             Reserve(capacity_ == 0 ? 1 : capacity_ * 2);
         }
 
         std::copy_backward(begin() + index, end(), end() + 1);
-        items_[index] = value;
+        items_[index] = std::move(temp_value);
         ++size_;
 
         return begin() + index;
